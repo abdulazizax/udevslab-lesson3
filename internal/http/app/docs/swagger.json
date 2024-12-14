@@ -6,7 +6,7 @@
     "swagger": "2.0",
     "info": {
         "description": "API Endpoints for MiniTwitter",
-        "title": "# MiniTwitter",
+        "title": "# UdevsLab Homework3",
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "API Support",
@@ -22,147 +22,36 @@
     "host": "localhost:8080",
     "basePath": "/",
     "paths": {
-        "/login": {
-            "post": {
-                "description": "Authenticate user and return JWT token",
-                "consumes": [
-                    "application/json"
-                ],
+        "/orders": {
+            "get": {
+                "description": "Retrieve all orders from the system",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Orders"
                 ],
-                "summary": "Login user",
-                "parameters": [
-                    {
-                        "description": "User login credentials",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_zohirovs_internal_models.RegisterUser"
-                        }
-                    }
-                ],
+                "summary": "List all orders",
                 "responses": {
                     "200": {
-                        "description": "Successfully logged in with token",
+                        "description": "List of orders",
                         "schema": {
-                            "$ref": "#/definitions/gin.H"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "$ref": "#/definitions/gin.H"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/gin.H"
-                        }
-                    }
-                }
-            }
-        },
-        "/register": {
-            "post": {
-                "description": "Register a new user with the provided details",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Register a new user",
-                "parameters": [
-                    {
-                        "description": "User registration details",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_zohirovs_internal_models.RegisterUser"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Successfully registered user",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_zohirovs_internal_models.User"
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request",
-                        "schema": {
-                            "$ref": "#/definitions/gin.H"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/gin.H"
-                        }
-                    }
-                }
-            }
-        },
-        "/tenders": {
-            "post": {
-                "description": "Create a new tender and store it in the database",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tenders"
-                ],
-                "summary": "Create a new tender",
-                "parameters": [
-                    {
-                        "description": "Tender object",
-                        "name": "tender",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_zohirovs_internal_models.CreateTender"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_zohirovs_internal_models.Tender"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/internal_http_handler.ErrorResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order"
+                            }
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handler.ErrorResponse"
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
                         }
                     }
                 }
-            }
-        },
-        "/tenders/{id}": {
-            "get": {
-                "description": "Retrieve a tender from the database by its ID",
+            },
+            "post": {
+                "description": "Create a new order and return the created order's ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -170,13 +59,470 @@
                     "application/json"
                 ],
                 "tags": [
-                    "tenders"
+                    "Orders"
                 ],
-                "summary": "Get tender by ID",
+                "summary": "Create a new order",
+                "parameters": [
+                    {
+                        "description": "Order information",
+                        "name": "order",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Order ID",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/orders/{order_id}": {
+            "get": {
+                "description": "Fetch a single order by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Get an order by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Tender ID",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order details",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Order Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update the details of an existing order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Update an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Order fields to update",
+                        "name": "updates",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.OrderUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order updated successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Order Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete an order by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Delete an order",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Order ID",
+                        "name": "order_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order deleted successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Order Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "description": "Retrieve a list of all products in the database",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "List all products",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of products",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new product in the database",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Create a new product",
+                "parameters": [
+                    {
+                        "description": "Product information",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.ProductCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Product created successfully\"// @Failure 400 {object} models.Error \"Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/search": {
+            "get": {
+                "description": "Search products by partial name with pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Search products by name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search keyword",
+                        "name": "name",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of products",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/search/price": {
+            "get": {
+                "description": "Retrieve products based on an exact price match with pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Search products by exact price",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "Price to search for",
+                        "name": "price",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Limit of products per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of products",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/search/price-range": {
+            "get": {
+                "description": "Retrieve products based on a price range with pagination",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Search products by price range",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Order (-1: decreasing, 1: increasing)",
+                        "name": "order",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Minimum price",
+                        "name": "min_price",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "description": "Maximum price",
+                        "name": "max_price",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Limit of products per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of products",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}": {
+            "get": {
+                "description": "Retrieve a product by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Get a product by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -184,27 +530,27 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Product found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_zohirovs_internal_models.Tender"
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Product not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handler.ErrorResponse"
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handler.ErrorResponse"
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
                         }
                     }
                 }
             },
-            "delete": {
-                "description": "Delete a tender from the database by its ID",
+            "put": {
+                "description": "Update product details by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -212,13 +558,67 @@
                     "application/json"
                 ],
                 "tags": [
-                    "tenders"
+                    "products"
                 ],
-                "summary": "Delete a tender",
+                "summary": "Update a product by ID",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Tender ID",
+                        "description": "Product ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated product details",
+                        "name": "product",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.ProductUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Product updated successfully",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Product not found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a product from the database by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "products"
+                ],
+                "summary": "Delete a product by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Product ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -226,77 +626,21 @@
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content"
-                    },
-                    "404": {
-                        "description": "Not Found",
+                        "description": "Product deleted successfully",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/internal_http_handler.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/tenders/{id}/status": {
-            "put": {
-                "description": "Update the status of an existing tender by its ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tenders"
-                ],
-                "summary": "Update the status of a tender",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Tender ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Tender Status",
-                        "name": "status",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/internal_http_handler.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/internal_http_handler.ErrorResponse"
+                            "$ref": "#/definitions/gin.H"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Product not found",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handler.ErrorResponse"
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
-                            "$ref": "#/definitions/internal_http_handler.ErrorResponse"
+                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
                         }
                     }
                 }
@@ -304,117 +648,121 @@
         }
     },
     "definitions": {
-<<<<<<< HEAD
         "gin.H": {
             "type": "object",
             "additionalProperties": {}
         },
-        "github_com_zohirovs_internal_models.RegisterUser": {
+        "github_com_abdulazizax_udevslab-lesson3_internal_models.Error": {
             "type": "object",
             "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "username": {
-=======
-        "github_com_zohirovs_internal_models.CreateTender": {
-            "type": "object",
-            "properties": {
-                "attachment_url": {
-                    "type": "string"
-                },
-                "budget": {
-                    "type": "number"
-                },
-                "deadline": {
-                    "type": "string"
-                },
-                "desription": {
-                    "type": "string"
-                },
-                "title": {
->>>>>>> b8874a32dbe7e55fed34094ffbc74b5f3dd305f1
+                "message": {
                     "type": "string"
                 }
             }
         },
-        "github_com_zohirovs_internal_models.Tender": {
+        "github_com_abdulazizax_udevslab-lesson3_internal_models.Order": {
             "type": "object",
             "properties": {
-                "attachment_url": {
+                "createdAt": {
+                    "type": "integer"
+                },
+                "id": {
                     "type": "string"
                 },
-                "budget": {
-                    "type": "number"
-                },
-                "client_id": {
+                "productId": {
                     "type": "string"
                 },
-                "deadline": {
-                    "type": "string"
-                },
-                "desription": {
-                    "type": "string"
+                "quantity": {
+                    "type": "integer"
                 },
                 "status": {
                     "type": "string"
                 },
-                "tender_id": {
-                    "type": "string"
+                "total": {
+                    "type": "number"
                 },
-                "title": {
-                    "type": "string"
+                "updatedAt": {
+                    "type": "integer"
                 }
             }
         },
-        "github_com_zohirovs_internal_models.User": {
+        "github_com_abdulazizax_udevslab-lesson3_internal_models.OrderUpdate": {
             "type": "object",
             "properties": {
-                "created_at": {
+                "productId": {
                     "type": "string"
                 },
-                "deleted_at": {
+                "quantity": {
+                    "type": "integer"
+                },
+                "status": {
                     "type": "string"
                 },
-                "email": {
+                "total": {
+                    "type": "number"
+                },
+                "updatedAt": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_abdulazizax_udevslab-lesson3_internal_models.Product": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "integer"
+                },
+                "description": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "password": {
+                "name": {
                     "type": "string"
                 },
-                "role": {
-                    "type": "string"
+                "price": {
+                    "type": "number"
                 },
-                "updated_at": {
-                    "type": "string"
+                "stock": {
+                    "type": "integer"
                 },
-                "username": {
-                    "type": "string"
+                "updatedAt": {
+                    "type": "integer"
                 }
             }
         },
-        "internal_http_handler.ErrorResponse": {
+        "github_com_abdulazizax_udevslab-lesson3_internal_models.ProductCreate": {
             "type": "object",
             "properties": {
-                "error": {
+                "description": {
                     "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "stock": {
+                    "type": "integer"
                 }
             }
         },
-        "internal_http_handler.SuccessResponse": {
+        "github_com_abdulazizax_udevslab-lesson3_internal_models.ProductUpdate": {
             "type": "object",
             "properties": {
-                "message": {
+                "description": {
                     "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "stock": {
+                    "type": "integer"
                 }
             }
         }

@@ -1,0 +1,28 @@
+{"time":"2024-12-14T12:49:19.63348241+05:00","level":"INFO","msg":"fetching all orders"}
+{"time":"2024-12-14T12:49:19.633873329+05:00","level":"INFO","msg":"successfully fetched all orders"}
+{"time":"2024-12-14T12:49:34.701457151+05:00","level":"ERROR","msg":"failed to bind JSON","error":"Time.UnmarshalJSON: input is not a JSON string"}
+{"time":"2024-12-14T12:59:40.054443683+05:00","level":"INFO","msg":"starting product creation","name":"string"}
+{"time":"2024-12-14T12:59:40.066959304+05:00","level":"INFO","msg":"product creation successful","productID":"675d3aec80817949be8c04b8"}
+{"time":"2024-12-14T13:32:20.739545012+05:00","level":"INFO","msg":"fetching list of products"}
+{"time":"2024-12-14T13:32:20.740651852+05:00","level":"INFO","msg":"successfully fetched products","productCount":1}
+{"time":"2024-12-14T13:32:55.629453453+05:00","level":"INFO","msg":"starting product creation","name":"Non"}
+{"time":"2024-12-14T13:32:55.630323176+05:00","level":"INFO","msg":"product creation successful","productID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T13:35:45.824666674+05:00","level":"INFO","msg":"starting product creation","name":"Pepsi"}
+{"time":"2024-12-14T13:35:45.825666091+05:00","level":"INFO","msg":"product creation successful","productID":"675d436124f62af6b6abf2cb"}
+{"time":"2024-12-14T13:37:22.871490089+05:00","level":"INFO","msg":"starting product creation","name":"Cola"}
+{"time":"2024-12-14T13:37:22.872521091+05:00","level":"INFO","msg":"product creation successful","productID":"675d43c2ef8c8fa69a2e6e91"}
+{"time":"2024-12-14T13:37:46.122227709+05:00","level":"INFO","msg":"fetching product by ID","productID":"675d43c2ef8c8fa69a2e6e91"}
+{"time":"2024-12-14T13:37:46.123077812+05:00","level":"INFO","msg":"successfully fetched product","productID":"675d43c2ef8c8fa69a2e6e91"}
+{"time":"2024-12-14T13:38:01.82221168+05:00","level":"INFO","msg":"fetching list of products"}
+{"time":"2024-12-14T13:38:01.823125441+05:00","level":"INFO","msg":"successfully fetched products","productCount":4}
+{"time":"2024-12-14T13:47:02.422047618+05:00","level":"INFO","msg":"updating product","productID":"675d3aec80817949be8c04b8"}
+{"time":"2024-12-14T13:47:02.423023617+05:00","level":"INFO","msg":"product updated successfully","productID":"675d3aec80817949be8c04b8","updatedFields":{"name":"Buxanka non","description":"Buxanka non","price":2900,"stock":40}}
+{"time":"2024-12-14T13:50:52.110662716+05:00","level":"INFO","msg":"updating product","productID":"675d3aec80817949be8c04b8"}
+{"time":"2024-12-14T13:50:52.111783711+05:00","level":"INFO","msg":"product updated successfully","productID":"675d3aec80817949be8c04b8","updatedFields":{"name":"Buxanka non","description":"Buxanka non","price":2900,"stock":42}}
+{"time":"2024-12-14T13:52:47.800418611+05:00","level":"INFO","msg":"deleting product","productID":"675d3aec80817949be8c04b8"}
+{"time":"2024-12-14T13:52:47.801143874+05:00","level":"INFO","msg":"product deleted successfully","productID":"675d3aec80817949be8c04b8"}
+{"time":"2024-12-14T14:25:03.151223812+05:00","level":"INFO","msg":"fetching list of products","page":1,"pageSize":1}
+{"time":"2024-12-14T14:25:03.152109323+05:00","level":"INFO","msg":"successfully fetched products","productCount":3}
+{"time":"2024-12-14T14:25:17.512530236+05:00","level":"INFO","msg":"fetching list of products","page":2,"pageSize":2}
+{"time":"2024-12-14T14:25:17.513251036+05:00","level":"INFO","msg":"successfully fetched products","productCount":1}
+{"time":"2024-12-14T14:40:44.249878317+05:00","level":"INFO","msg":"successfully fetched search results","productCount":1}

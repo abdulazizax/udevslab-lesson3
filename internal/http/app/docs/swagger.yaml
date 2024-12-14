@@ -1,80 +1,81 @@
 basePath: /
 definitions:
-<<<<<<< HEAD
   gin.H:
     additionalProperties: {}
     type: object
-  github_com_zohirovs_internal_models.RegisterUser:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-      role:
-        type: string
-      username:
-=======
-  github_com_zohirovs_internal_models.CreateTender:
-    properties:
-      attachment_url:
-        type: string
-      budget:
-        type: number
-      deadline:
-        type: string
-      desription:
-        type: string
-      title:
->>>>>>> b8874a32dbe7e55fed34094ffbc74b5f3dd305f1
-        type: string
-    type: object
-  github_com_zohirovs_internal_models.Tender:
-    properties:
-      attachment_url:
-        type: string
-      budget:
-        type: number
-      client_id:
-        type: string
-      deadline:
-        type: string
-      desription:
-        type: string
-      status:
-        type: string
-      tender_id:
-        type: string
-      title:
-        type: string
-    type: object
-  github_com_zohirovs_internal_models.User:
-    properties:
-      created_at:
-        type: string
-      deleted_at:
-        type: string
-      email:
-        type: string
-      id:
-        type: string
-      password:
-        type: string
-      role:
-        type: string
-      updated_at:
-        type: string
-      username:
-        type: string
-    type: object
-  internal_http_handler.ErrorResponse:
-    properties:
-      error:
-        type: string
-    type: object
-  internal_http_handler.SuccessResponse:
+  github_com_abdulazizax_udevslab-lesson3_internal_models.Error:
     properties:
       message:
         type: string
+    type: object
+  github_com_abdulazizax_udevslab-lesson3_internal_models.Order:
+    properties:
+      createdAt:
+        type: integer
+      id:
+        type: string
+      productId:
+        type: string
+      quantity:
+        type: integer
+      status:
+        type: string
+      total:
+        type: number
+      updatedAt:
+        type: integer
+    type: object
+  github_com_abdulazizax_udevslab-lesson3_internal_models.OrderUpdate:
+    properties:
+      productId:
+        type: string
+      quantity:
+        type: integer
+      status:
+        type: string
+      total:
+        type: number
+      updatedAt:
+        type: integer
+    type: object
+  github_com_abdulazizax_udevslab-lesson3_internal_models.Product:
+    properties:
+      createdAt:
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+      updatedAt:
+        type: integer
+    type: object
+  github_com_abdulazizax_udevslab-lesson3_internal_models.ProductCreate:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
+    type: object
+  github_com_abdulazizax_udevslab-lesson3_internal_models.ProductUpdate:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      stock:
+        type: integer
     type: object
 host: localhost:8080
 info:
@@ -87,106 +88,217 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: '# MiniTwitter'
+  title: '# UdevsLab Homework3'
   version: 1.03.67.83.145
 paths:
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: Authenticate user and return JWT token
-      parameters:
-      - description: User login credentials
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_zohirovs_internal_models.RegisterUser'
+  /orders:
+    get:
+      description: Retrieve all orders from the system
       produces:
       - application/json
       responses:
         "200":
-          description: Successfully logged in with token
+          description: List of orders
           schema:
-            $ref: '#/definitions/gin.H'
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/gin.H'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/gin.H'
-      summary: Login user
-      tags:
-      - users
-  /register:
-    post:
-      consumes:
-      - application/json
-      description: Register a new user with the provided details
-      parameters:
-      - description: User registration details
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_zohirovs_internal_models.RegisterUser'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Successfully registered user
-          schema:
-            $ref: '#/definitions/github_com_zohirovs_internal_models.User'
-        "400":
-          description: Invalid request
-          schema:
-            $ref: '#/definitions/gin.H'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/gin.H'
-      summary: Register a new user
-      tags:
-      - users
-  /tenders:
-    post:
-      consumes:
-      - application/json
-      description: Create a new tender and store it in the database
-      parameters:
-      - description: Tender object
-        in: body
-        name: tender
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_zohirovs_internal_models.CreateTender'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/github_com_zohirovs_internal_models.Tender'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/internal_http_handler.ErrorResponse'
+            items:
+              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order'
+            type: array
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/internal_http_handler.ErrorResponse'
-      summary: Create a new tender
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: List all orders
       tags:
-      - tenders
-  /tenders/{id}:
-    delete:
+      - Orders
+    post:
       consumes:
       - application/json
-      description: Delete a tender from the database by its ID
+      description: Create a new order and return the created order's ID
       parameters:
-      - description: Tender ID
+      - description: Order information
+        in: body
+        name: order
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Order ID
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Create a new order
+      tags:
+      - Orders
+  /orders/{order_id}:
+    delete:
+      description: Delete an order by its ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "404":
+          description: Order Not Found
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Delete an order
+      tags:
+      - Orders
+    get:
+      description: Fetch a single order by its ID
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order details
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "404":
+          description: Order Not Found
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Get an order by ID
+      tags:
+      - Orders
+    put:
+      consumes:
+      - application/json
+      description: Update the details of an existing order
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      - description: Order fields to update
+        in: body
+        name: updates
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.OrderUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order updated successfully
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "404":
+          description: Order Not Found
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Update an order
+      tags:
+      - Orders
+  /products:
+    get:
+      description: Retrieve a list of all products in the database
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of products
+          schema:
+            items:
+              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: List all products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Creates a new product in the database
+      parameters:
+      - description: Product information
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.ProductCreate'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Product created successfully"// @Failure 400 {object} models.Error
+            "Bad request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Create a new product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      description: Delete a product from the database by its ID
+      parameters:
+      - description: Product ID
         in: path
         name: id
         required: true
@@ -195,24 +307,24 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
+          description: Product deleted successfully
+          schema:
+            $ref: '#/definitions/gin.H'
         "404":
-          description: Not Found
+          description: Product not found
           schema:
-            $ref: '#/definitions/internal_http_handler.ErrorResponse'
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            $ref: '#/definitions/internal_http_handler.ErrorResponse'
-      summary: Delete a tender
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Delete a product by ID
       tags:
-      - tenders
+      - products
     get:
-      consumes:
-      - application/json
-      description: Retrieve a tender from the database by its ID
+      description: Retrieve a product by its ID
       parameters:
-      - description: Tender ID
+      - description: Product ID
         in: path
         name: id
         required: true
@@ -221,59 +333,181 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Product found
           schema:
-            $ref: '#/definitions/github_com_zohirovs_internal_models.Tender'
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product'
         "404":
-          description: Not Found
+          description: Product not found
           schema:
-            $ref: '#/definitions/internal_http_handler.ErrorResponse'
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            $ref: '#/definitions/internal_http_handler.ErrorResponse'
-      summary: Get tender by ID
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Get a product by ID
       tags:
-      - tenders
-  /tenders/{id}/status:
+      - products
     put:
       consumes:
       - application/json
-      description: Update the status of an existing tender by its ID
+      description: Update product details by its ID
       parameters:
-      - description: Tender ID
+      - description: Product ID
         in: path
         name: id
         required: true
         type: string
-      - description: Tender Status
+      - description: Updated product details
         in: body
-        name: status
+        name: product
         required: true
         schema:
-          type: string
+          $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.ProductUpdate'
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Product updated successfully
           schema:
-            $ref: '#/definitions/internal_http_handler.SuccessResponse'
+            $ref: '#/definitions/gin.H'
         "400":
-          description: Bad Request
+          description: Bad request
           schema:
-            $ref: '#/definitions/internal_http_handler.ErrorResponse'
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
         "404":
-          description: Not Found
+          description: Product not found
           schema:
-            $ref: '#/definitions/internal_http_handler.ErrorResponse'
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
         "500":
-          description: Internal Server Error
+          description: Internal server error
           schema:
-            $ref: '#/definitions/internal_http_handler.ErrorResponse'
-      summary: Update the status of a tender
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Update a product by ID
       tags:
-      - tenders
+      - products
+  /products/search:
+    get:
+      description: Search products by partial name with pagination
+      parameters:
+      - description: Search keyword
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: Page number
+        in: query
+        name: page
+        required: true
+        type: integer
+      - description: Items per page
+        in: query
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of products
+          schema:
+            items:
+              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Search products by name
+      tags:
+      - products
+  /products/search/price:
+    get:
+      description: Retrieve products based on an exact price match with pagination
+      parameters:
+      - description: Price to search for
+        in: query
+        name: price
+        required: true
+        type: number
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Limit of products per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of products
+          schema:
+            items:
+              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product'
+            type: array
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Search products by exact price
+      tags:
+      - products
+  /products/search/price-range:
+    get:
+      description: Retrieve products based on a price range with pagination
+      parameters:
+      - description: 'Order (-1: decreasing, 1: increasing)'
+        in: query
+        name: order
+        required: true
+        type: integer
+      - description: Minimum price
+        in: query
+        name: min_price
+        required: true
+        type: number
+      - description: Maximum price
+        in: query
+        name: max_price
+        required: true
+        type: number
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Limit of products per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of products
+          schema:
+            items:
+              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Product'
+            type: array
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Search products by price range
+      tags:
+      - products
 schemes:
 - http
 - https

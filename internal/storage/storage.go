@@ -21,8 +21,8 @@ type Storage struct {
 
 func New(db *mongo.Database, cfg *config.Config, logger *slog.Logger) StorageI {
 	return &Storage{
-		productRepo: mongodb.NewProductSrorage(db, logger, cfg),
-		orderRepo:   mongodb.NewOrderSrorage(db, logger, cfg),
+		productRepo: mongodb.NewProductStorage(db, logger, cfg),
+		orderRepo:   mongodb.NewOrderStorage(db, logger, cfg),
 	}
 }
 

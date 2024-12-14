@@ -1,6 +1,6 @@
 // Package api API.
 //
-// @title # MiniTwitter
+// @title # UdevsLab Homework3
 // @version 1.03.67.83.145
 //
 // @description API Endpoints for MiniTwitter
@@ -25,15 +25,6 @@ package app
 import (
 	"log/slog"
 
-	// _ "github.com/abdulazizax/mini-twitter/api-service/internal/items/http/app/docs"
-	// "github.com/abdulazizax/mini-twitter/api-service/internal/items/middleware"
-
-	// casbin "github.com/casbin/casbin/v2"
-	// "github.com/gin-contrib/cors"
-
-	// "github.com/abdulazizax/mini-twitter/api-service/internal/items/http/handler"
-	// "github.com/abdulazizax/mini-twitter/api-service/internal/pkg/config"
-
 	"github.com/abdulazizax/udevslab-lesson3/internal/config"
 	_ "github.com/abdulazizax/udevslab-lesson3/internal/http/app/docs"
 	"github.com/abdulazizax/udevslab-lesson3/internal/http/handler"
@@ -44,21 +35,9 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// Run initializes and starts the HTTP server for the MiniTwitter API.
-// It sets up routing, middleware, and Swagger documentation.
-//
-// Parameters:
-// - handler: Pointer to the Handler struct containing all route handlers
-// - logger: Structured logger for logging
-// - config: Application configuration
-// - enforcer: Casbin enforcer for authorization
-//
-// Returns:
-// - error: Any error that occurs during server startup
 func Run(handler *handler.Handler, logger *slog.Logger, config *config.Config) error {
 	router := gin.Default()
 
-	// CORS configuration
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
 	corsConfig.AllowCredentials = true
@@ -67,15 +46,32 @@ func Run(handler *handler.Handler, logger *slog.Logger, config *config.Config) e
 	corsConfig.AllowMethods = []string{"*"}
 	router.Use(cors.New(corsConfig))
 
-	// Swagger documentation setup
 	url := ginSwagger.URL("/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url, ginSwagger.PersistAuthorization(true)))
 
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	// API ednpoints
+	productRoutes := router.Group("/products")
+	{
+		productRoutes.POST("", handler.ProductHandler.CreateProduct)
+		productRoutes.GET("", handler.ProductHandler.ListProducts)
+		productRoutes.GET(":id", handler.ProductHandler.GetProduct)
+		productRoutes.PUT(":id", handler.ProductHandler.UpdateProduct)
+		productRoutes.DELETE(":id", handler.ProductHandler.DeleteProduct)
+		productRoutes.GET("/search", handler.ProductHandler.SearchProductsByName)
+		productRoutes.GET("/search/price", handler.ProductHandler.ExactSearchProductsByPrice)
+		productRoutes.GET("search/price-range", handler.ProductHandler.SearchProductsByPriceRange)
+	}
+
+	orderRoutes := router.Group("/orders")
+	{
+		orderRoutes.POST("", handler.OrderHandler.CreateOrder)
+		orderRoutes.GET("", handler.OrderHandler.ListOrders)
+		orderRoutes.GET(":id", handler.OrderHandler.GetOrder)
+		orderRoutes.PUT(":id", handler.OrderHandler.UpdateOrder)
+		orderRoutes.DELETE(":id", handler.OrderHandler.DeleteOrder)
+	}
 
 	return router.Run(config.Server.Port)
-
 }

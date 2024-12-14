@@ -1,7 +1,26 @@
 package repos
 
+import (
+	"context"
+
+	"github.com/abdulazizax/udevslab-lesson3/internal/models"
+)
+
 type OrderRepo interface {
+	CreateOrder(ctx context.Context, order *models.Order) (string, error)
+	GetOrderByID(ctx context.Context, orderID string) (*models.Order, error)
+	UpdateOrder(ctx context.Context, orderID string, updates *models.OrderUpdate) error
+	DeleteOrder(ctx context.Context, orderID string) error
+	ListOrders(ctx context.Context) ([]models.Order, error)
 }
 
 type ProductRepo interface {
+	CreateProduct(ctx context.Context, product *models.ProductCreate) (string, error)
+	GetProductByID(ctx context.Context, productID string) (*models.Product, error)
+	UpdateProduct(ctx context.Context, productID string, updates *models.ProductUpdate) error
+	DeleteProduct(ctx context.Context, productID string) error
+	ListProducts(ctx context.Context, pagination *models.Pagination) ([]models.Product, error)
+	SearchProductsByName(ctx context.Context, name string, pagination *models.Pagination) ([]models.Product, error)
+	ExactSearchProductsByPrice(ctx context.Context, price float64, pagination *models.Pagination) ([]models.Product, error)
+	SearchProductsByPriceRange(ctx context.Context, order int8, minPrice, maxPrice float64, pagination *models.Pagination) ([]models.Product, error)
 }
