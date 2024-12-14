@@ -3,6 +3,8 @@ package handler
 import (
 	"log/slog"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/abdulazizax/udevslab-lesson3/internal/models"
 	"github.com/abdulazizax/udevslab-lesson3/internal/service"
@@ -29,13 +31,13 @@ func NewOrderHandler(logger *slog.Logger, orderService *service.OrderService) *O
 // @Tags Orders
 // @Accept  json
 // @Produce  json
-// @Param order body models.Order true "Order information"
-// @Success 201 {string} string "Order ID"
+// @Param order body models.OrderCreate true "Order information"
+// @Success 201 {object} gin.H "Order ID"
 // @Failure 400 {object} models.Error "Bad Request"
 // @Failure 500 {object} models.Error "Internal Server Error"
 // @Router /orders [post]
 func (s *OrderHandler) CreateOrder(c *gin.Context) {
-	var order models.Order
+	var order models.OrderCreate
 	if err := c.ShouldBindJSON(&order); err != nil {
 		s.logger.Error("failed to bind JSON", "error", err)
 		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid order data"})
@@ -49,22 +51,28 @@ func (s *OrderHandler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, orderID)
+	c.JSON(http.StatusCreated, gin.H{"id": orderID})
 }
 
-// ListOrders lists all orders
+// ListOrders godoc
 // @Summary List all orders
-// @Description Retrieve all orders from the system
-// @Tags Orders
-// @Produce  json
+// @Description Retrieve a list of all orders in the database with pagination
+// @Tags orders
+// @Produce json
+// @Param pagination body models.Pagination true "Page information"
 // @Success 200 {array} models.Order "List of orders"
-// @Failure 500 {object} models.Error "Internal Server Error"
+// @Failure 500 {object} models.Error "Internal server error"
 // @Router /orders [get]
-func (s *OrderHandler) ListOrders(c *gin.Context) {
-	orders, err := s.orderService.ListOrders(c)
+func (o *OrderHandler) ListOrders(c *gin.Context) {
+	var pagination models.Pagination
+	if err := c.ShouldBindJSON(&pagination); err != nil {
+		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid request body"})
+		return
+	}
+
+	orders, err := o.orderService.ListOrders(c, &pagination)
 	if err != nil {
-		s.logger.Error("failed to list orders", "error", err)
-		c.JSON(http.StatusInternalServerError, models.Error{Message: "Failed to fetch orders"})
+		c.JSON(http.StatusInternalServerError, models.Error{Message: err.Error()})
 		return
 	}
 
@@ -107,7 +115,7 @@ func (s *OrderHandler) GetOrder(c *gin.Context) {
 // @Produce  json
 // @Param order_id path string true "Order ID"
 // @Param updates body models.OrderUpdate true "Order fields to update"
-// @Success 200 {string} string "Order updated successfully"
+// @Success 200 {object} gin.H "Order updated successfully"
 // @Failure 400 {object} models.Error "Bad Request"
 // @Failure 404 {object} models.Error "Order Not Found"
 // @Failure 500 {object} models.Error "Internal Server Error"
@@ -121,7 +129,10 @@ func (s *OrderHandler) UpdateOrder(c *gin.Context) {
 		return
 	}
 
-	err := s.orderService.UpdateOrder(c, orderID, &updates)
+	res, err := s.orderService.UpdateOrder(c, orderID, &updates)
+	if res != "" {
+		c.JSON(http.StatusNotFound, models.Error{Message: "Order updated successfully"})
+	}
 	if err != nil {
 		if err.Error() == "no order found to update" {
 			c.JSON(http.StatusNotFound, models.Error{Message: "Order not found"})
@@ -132,7 +143,7 @@ func (s *OrderHandler) UpdateOrder(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, "Order updated successfully")
+	c.JSON(http.StatusOK, gin.H{"message": "Order updated successfully"})
 }
 
 // DeleteOrder deletes an order
@@ -161,4 +172,56 @@ func (s *OrderHandler) DeleteOrder(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, "Order deleted successfully")
+}
+
+// ListOrders godoc
+// @Summary List all orders within a specific date range, with pagination, and sorted by date (ascending)
+// @Description Retrieve a list of all orders within a date range in the database, sorted by created_at in ascending order
+// @Tags orders
+// @Produce json
+// @Param order query int8 true "Order (-1: decreasing, 1: increasing)"
+// @Param pagination body models.Pagination true "Page information"
+// @Param start_date query string true "Start date (YYYY-MM-DD)"
+// @Param end_date query string true "End date (YYYY-MM-DD)"
+// @Success 200 {array} models.Order "List of orders"
+// @Failure 500 {object} models.Error "Internal server error"
+// @Router /orders/range [get]
+func (o *OrderHandler) ListOrdersByDateRange(c *gin.Context) {
+	var pagination models.Pagination
+	if err := c.ShouldBindJSON(&pagination); err != nil {
+		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid request body"})
+		return
+	}
+
+	// Get start and end dates from query parameters
+	orderStr := c.DefaultQuery("order", "1") // Default is 1 if not provided
+	startDateStr := c.DefaultQuery("start_date", "")
+	endDateStr := c.DefaultQuery("end_date", "")
+
+	order, err := strconv.ParseInt(orderStr, 10, 8)
+	if err != nil || order < -1 || order > 1 {
+		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid order parameter. Must be -1 or 1"})
+		return
+	}
+
+	startDate, err := time.Parse("2006-01-02", startDateStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid start date format"})
+		return
+	}
+
+	endDate, err := time.Parse("2006-01-02", endDateStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid end date format"})
+		return
+	}
+
+	// Fetch orders with pagination, date range filter, and sorting by date
+	orders, err := o.orderService.ListOrdersByDateRange(c, int8(order), &pagination, startDate, endDate)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.Error{Message: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, orders)
 }

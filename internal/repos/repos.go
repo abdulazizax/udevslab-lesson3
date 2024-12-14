@@ -2,16 +2,18 @@ package repos
 
 import (
 	"context"
+	"time"
 
 	"github.com/abdulazizax/udevslab-lesson3/internal/models"
 )
 
 type OrderRepo interface {
-	CreateOrder(ctx context.Context, order *models.Order) (string, error)
+	CreateOrder(ctx context.Context, total float64, order *models.OrderCreate) (string, error)
 	GetOrderByID(ctx context.Context, orderID string) (*models.Order, error)
-	UpdateOrder(ctx context.Context, orderID string, updates *models.OrderUpdate) error
+	UpdateOrder(ctx context.Context, total float64, orderID string, updates *models.OrderUpdate) (string, error)
 	DeleteOrder(ctx context.Context, orderID string) error
-	ListOrders(ctx context.Context) ([]models.Order, error)
+	ListOrders(ctx context.Context, pagination *models.Pagination) ([]models.Order, error)
+	ListOrdersByDateRange(ctx context.Context, order int8, pagination *models.Pagination, startDate, endDate time.Time) ([]models.Order, error)
 }
 
 type ProductRepo interface {

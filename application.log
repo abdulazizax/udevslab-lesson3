@@ -26,3 +26,13 @@
 {"time":"2024-12-14T14:25:17.512530236+05:00","level":"INFO","msg":"fetching list of products","page":2,"pageSize":2}
 {"time":"2024-12-14T14:25:17.513251036+05:00","level":"INFO","msg":"successfully fetched products","productCount":1}
 {"time":"2024-12-14T14:40:44.249878317+05:00","level":"INFO","msg":"successfully fetched search results","productCount":1}
+{"time":"2024-12-14T15:43:48.05512717+05:00","level":"INFO","msg":"fetching product by ID","productID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T15:43:48.055678672+05:00","level":"INFO","msg":"successfully fetched product","productID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T15:43:48.055700189+05:00","level":"INFO","msg":"starting order creation","ProductID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T15:43:48.067544451+05:00","level":"INFO","msg":"order creation successful","orderID":"675d616479334336c3eea90b"}
+{"time":"2024-12-14T15:45:32.954899999+05:00","level":"ERROR","msg":"failed to bind JSON","error":"encoding/hex: invalid byte: U+0073 's'"}
+{"time":"2024-12-14T15:45:53.271811408+05:00","level":"ERROR","msg":"failed to bind JSON","error":"encoding/hex: invalid byte: U+0073 's'"}
+{"time":"2024-12-14T15:46:18.157227986+05:00","level":"INFO","msg":"fetching product by ID","productID":"675d436124f62af6b6abf2cb"}
+{"time":"2024-12-14T15:46:18.157713017+05:00","level":"INFO","msg":"successfully fetched product","productID":"675d436124f62af6b6abf2cb"}
+{"time":"2024-12-14T15:46:18.157730289+05:00","level":"INFO","msg":"starting order creation","ProductID":"675d436124f62af6b6abf2cb"}
+{"time":"2024-12-14T15:46:18.15796658+05:00","level":"INFO","msg":"order creation successful","orderID":"675d61fa7a40a1339c26e0c1"}

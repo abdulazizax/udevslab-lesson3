@@ -3,6 +3,9 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type (
+
+	// Products structs
+
 	Product struct {
 		ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 		Name        string             `bson:"name" json:"name"`
@@ -35,8 +38,11 @@ type (
 		UpdatedAt   primitive.DateTime `bson:"updatedAt" json:"updatedAt"`
 	}
 
+	// Orders structs
+
 	Order struct {
 		ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+		UserID    primitive.ObjectID `bson:"userId" json:"userId"`
 		ProductID primitive.ObjectID `bson:"productId" json:"productId"`
 		Quantity  int                `bson:"quantity" json:"quantity"`
 		Status    string             `bson:"status" json:"status"`
@@ -46,18 +52,26 @@ type (
 	}
 
 	OrderCreate struct {
+		UserID    primitive.ObjectID `bson:"userId" json:"userId"`
 		ProductID primitive.ObjectID `bson:"productId" json:"productId"`
 		Quantity  int                `bson:"quantity" json:"quantity"`
 		Status    string             `bson:"status" json:"status"`
-		Total     float64            `bson:"total" json:"total"`
 	}
 
 	OrderUpdate struct {
-		ProductID *primitive.ObjectID `bson:"productId,omitempty" json:"productId,omitempty"`
-		Quantity  *int                `bson:"quantity,omitempty" json:"quantity,omitempty"`
-		Status    *string             `bson:"status,omitempty" json:"status,omitempty"`
-		Total     *float64            `bson:"total,omitempty" json:"total,omitempty"`
-		UpdatedAt *primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+		UserID    primitive.ObjectID `bson:"userId" json:"userId"`
+		ProductID primitive.ObjectID `bson:"productId,omitempty" json:"productId,omitempty"`
+		Quantity  int                `bson:"quantity,omitempty" json:"quantity,omitempty"`
+		Status    string             `bson:"status,omitempty" json:"status,omitempty"`
+	}
+
+	UpdatedOrder struct {
+		UserID    primitive.ObjectID `bson:"userId" json:"userId"`
+		ProductID primitive.ObjectID `bson:"productId,omitempty" json:"productId,omitempty"`
+		Quantity  int                `bson:"quantity,omitempty" json:"quantity,omitempty"`
+		Status    string             `bson:"status,omitempty" json:"status,omitempty"`
+		Total     float64            `bson:"total,omitempty" json:"total,omitempty"`
+		UpdatedAt primitive.DateTime `bson:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 	}
 
 	Report struct {
