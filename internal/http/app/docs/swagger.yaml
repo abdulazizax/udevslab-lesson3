@@ -3,6 +3,13 @@ definitions:
   gin.H:
     additionalProperties: {}
     type: object
+  github_com_abdulazizax_udevslab-lesson3_internal_models.AggregatedOrdersResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.OrderAggregate'
+        type: array
+    type: object
   github_com_abdulazizax_udevslab-lesson3_internal_models.Error:
     properties:
       message:
@@ -26,6 +33,20 @@ definitions:
         type: integer
       userId:
         type: string
+    type: object
+  github_com_abdulazizax_udevslab-lesson3_internal_models.OrderAggregate:
+    properties:
+      _id:
+        properties:
+          month:
+            type: integer
+          year:
+            type: integer
+        type: object
+      orderCount:
+        type: integer
+      totalAmount:
+        type: number
     type: object
   github_com_abdulazizax_udevslab-lesson3_internal_models.OrderCreate:
     properties:
@@ -87,6 +108,13 @@ definitions:
       price:
         type: number
       stock:
+        type: integer
+    type: object
+  github_com_abdulazizax_udevslab-lesson3_internal_models.ProductSales:
+    properties:
+      productId:
+        type: string
+      totalSold:
         type: integer
     type: object
   github_com_abdulazizax_udevslab-lesson3_internal_models.ProductUpdate:
@@ -268,6 +296,91 @@ paths:
       summary: Update an order
       tags:
       - Orders
+  /orders/aggregates:
+    get:
+      consumes:
+      - application/json
+      description: Fetch aggregated orders based on the date range, pagination, and
+        sorting (by date).
+      parameters:
+      - description: Start Date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: End Date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        required: true
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - default: 1
+        description: Order (1 for ascending, -1 for descending)
+        in: query
+        name: order
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Aggregated Orders
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.AggregatedOrdersResponse'
+        "400":
+          description: Invalid parameters
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Get aggregated orders by date range (year and month)
+      tags:
+      - Orders
+  /orders/customer/{customer_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of orders for a specific customer by customer ID
+      parameters:
+      - description: Customer ID
+        in: path
+        name: customer_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of orders
+          schema:
+            items:
+              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order'
+            type: array
+        "400":
+          description: Invalid customer ID
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "404":
+          description: No orders found
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Get orders by customer
+      tags:
+      - Orders
   /orders/range:
     get:
       description: Retrieve a list of all orders within a date range in the database,
@@ -301,7 +414,9 @@ paths:
           description: List of orders
           schema:
             items:
-              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order'
+              items:
+                $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order'
+              type: array
             type: array
         "500":
           description: Internal server error
@@ -581,6 +696,31 @@ paths:
       summary: Search products by price range
       tags:
       - products
+  /products/top-selling:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of the top selling products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Top selling products
+          schema:
+            items:
+              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.ProductSales'
+            type: array
+        "404":
+          description: No products found
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: Get the top selling products
+      tags:
+      - Products
 schemes:
 - http
 - https

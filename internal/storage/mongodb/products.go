@@ -273,3 +273,36 @@ func (s *ProductStorage) SearchProductsByPriceRange(ctx context.Context, order i
 
 	return products, nil
 }
+
+// TopSellingProducts - Get list of top selling products
+func (s *ProductStorage) TopSellingProducts(ctx context.Context) ([]models.ProductSales, error) {
+	var topProducts []models.ProductSales
+
+	// Aggregation: Count orders by productId
+	pipeline := mongo.Pipeline{
+		bson.D{{Key: "$group", Value: bson.D{
+			{Key: "_id", Value: "$productId"},                                    // Group by productId
+			{Key: "totalSold", Value: bson.D{{Key: "$sum", Value: "$quantity"}}}, // Sum quantity sold
+		}}},
+		bson.D{{Key: "$sort", Value: bson.D{
+			{Key: "totalSold", Value: -1}, // Sort by most sold products first
+		}}},
+		bson.D{{Key: "$limit", Value: 10}}, // Get only top 10 most sold products
+	}
+
+	cursor, err := s.db.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx) // Close the cursor once done
+
+	if err := cursor.All(ctx, &topProducts); err != nil {
+		return nil, err
+	}
+
+	if len(topProducts) == 0 {
+		return nil, errors.New("no top selling products found")
+	}
+
+	return topProducts, nil
+}

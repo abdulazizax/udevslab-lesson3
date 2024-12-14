@@ -190,49 +190,162 @@ func (o *OrderStorage) ListOrders(ctx context.Context, pagination *models.Pagina
 	return orders, nil
 }
 
-// ListOrders fetches all orders from the database with date range filtering, pagination, and sorting by date (ascending)
-func (o *OrderStorage) ListOrdersByDateRange(ctx context.Context, order int8, pagination *models.Pagination, startDate, endDate time.Time) ([]models.Order, error) {
-	o.logger.Info("fetching orders with date range, pagination, and sorted by date")
+// ListOrdersByDateRange - Get orders by date range (from startDate to endDate) with pagination
+func (s *OrderStorage) ListOrdersByDateRange(ctx context.Context, order int8, pagination *models.Pagination, startDate, endDate time.Time) ([]models.Order, error) {
+	var orders []models.Order
+
+	// Calculate skip and limit for pagination
+	skip := (pagination.Page - 1) * pagination.PageSize
+	limit := pagination.PageSize
+
+	// Aggregation pipeline to filter orders by date range and apply pagination
+	pipeline := mongo.Pipeline{
+		bson.D{{Key: "$match", Value: bson.D{
+			{Key: "createdAt", Value: bson.D{
+				{Key: "$gte", Value: startDate}, // greater than or equal to startDate
+				{Key: "$lte", Value: endDate},   // less than or equal to endDate
+			}},
+		}}},
+		bson.D{{Key: "$sort", Value: bson.D{
+			{Key: "createdAt", Value: int(order)}, // Sort by createdAt in ascending or descending order
+		}}},
+		bson.D{{Key: "$skip", Value: skip}},   // Skip the number of records for pagination
+		bson.D{{Key: "$limit", Value: limit}}, // Limit the number of records per page
+	}
+
+	cursor, err := s.db.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx) // Close the cursor once done
+
+	if err := cursor.All(ctx, &orders); err != nil {
+		return nil, err
+	}
+
+	if len(orders) == 0 {
+		return nil, errors.New("no orders found in the given date range")
+	}
+
+	return orders, nil
+}
+
+// ListOrdersWithAggregates - Aggregate orders by date (by year and month)
+func (o *OrderStorage) ListOrdersWithAggregates(ctx context.Context, startDate, endDate time.Time, pagination *models.Pagination, order int8) ([]models.OrderAggregate, error) {
+	o.logger.Info("fetching orders with aggregates for date range, pagination, and sorting by date")
 
 	// Create the filter for the date range
 	filter := bson.M{
-		"created_at": bson.M{
+		"createdAt": bson.M{
 			"$gte": startDate, // greater than or equal to startDate
 			"$lte": endDate,   // less than or equal to endDate
 		},
 	}
 
+	// Pipeline stages for aggregation
+	// $match: Filter orders by createdAt within the date range
+	matchStage := bson.D{
+		{Key: "$match", Value: filter},
+	}
+
+	// $project: Extract the year and month from createdAt, include total
+	projectStage := bson.D{
+		{Key: "$project", Value: bson.D{
+			{Key: "year", Value: bson.D{{Key: "$year", Value: "$createdAt"}}},   // Fix field name
+			{Key: "month", Value: bson.D{{Key: "$month", Value: "$createdAt"}}}, // Fix field name
+			{Key: "total", Value: 1}, // Keep the total amount field for aggregation
+		}},
+	}
+
+	// $group: Group by year and month, and calculate the total amount and order count
+	groupStage := bson.D{
+		{Key: "$group", Value: bson.D{
+			{Key: "_id", Value: bson.D{
+				{Key: "year", Value: "$year"},
+				{Key: "month", Value: "$month"},
+			}},
+			{Key: "totalAmount", Value: bson.D{
+				{Key: "$sum", Value: "$total"},
+			}},
+			{Key: "orderCount", Value: bson.D{
+				{Key: "$sum", Value: 1},
+			}},
+		}},
+	}
+
+	// $sort: Sort by year and month
+	sortStage := bson.D{
+		{Key: "$sort", Value: bson.D{
+			{Key: "_id.year", Value: 1},
+			{Key: "_id.month", Value: 1},
+		}},
+	}
+
 	// Calculate skip and limit for pagination
 	skip := (pagination.Page - 1) * pagination.PageSize
-	options := options.Find().
-		SetSkip(int64(skip)).
-		SetLimit(int64(pagination.PageSize)).
-		SetSort(bson.D{{Key: "created_at", Value: int(order)}}) // Sort by created_at in ascending order
-	// Find orders in MongoDB based on the filter and pagination options
-	cursor, err := o.db.Find(ctx, filter, options)
+
+	// Add $skip and $limit stages to the pipeline
+	skipStage := bson.D{{Key: "$skip", Value: skip}}
+	limitStage := bson.D{{Key: "$limit", Value: pagination.PageSize}}
+
+	// Aggregation pipeline
+	pipeline := mongo.Pipeline{matchStage, projectStage, groupStage, sortStage, skipStage, limitStage}
+
+	// Run the aggregation query
+	cursor, err := o.db.Aggregate(ctx, pipeline)
 	if err != nil {
-		o.logger.Error("failed to fetch orders from database", "error", err)
-		return nil, fmt.Errorf("failed to fetch orders: %w", err)
+		o.logger.Error("failed to aggregate orders", "error", err)
+		return nil, fmt.Errorf("failed to aggregate orders: %w", err)
 	}
 	defer cursor.Close(ctx)
 
-	// Iterate through the cursor and decode each order
-	var orders []models.Order
+	// Decode the aggregation results into a slice of OrderAggregate
+	var results []models.OrderAggregate
 	for cursor.Next(ctx) {
-		var order models.Order
-		if err := cursor.Decode(&order); err != nil {
-			o.logger.Error("failed to decode order", "error", err)
-			return nil, fmt.Errorf("failed to decode order: %w", err)
+		var aggregate models.OrderAggregate
+		if err := cursor.Decode(&aggregate); err != nil {
+			o.logger.Error("failed to decode aggregation result", "error", err)
+			return nil, fmt.Errorf("failed to decode aggregation result: %w", err)
 		}
-		orders = append(orders, order)
+		results = append(results, aggregate)
 	}
 
-	// Check for errors that occurred during iteration
+	// Check for cursor errors
 	if err := cursor.Err(); err != nil {
 		o.logger.Error("cursor error", "error", err)
 		return nil, fmt.Errorf("cursor error: %w", err)
 	}
 
-	o.logger.Info("successfully fetched orders with date range and sorted by date", "orderCount", len(orders))
+	o.logger.Info("successfully fetched orders with aggregates", "orderCount", len(results))
+	return results, nil
+}
+
+// ListOrdersByCustomer - Get orders by customer (join with users)
+func (s *OrderStorage) ListOrdersByCustomer(ctx context.Context, customerID string) ([]models.Order, error) {
+	var orders []models.Order
+	pipeline := mongo.Pipeline{
+		bson.D{{Key: "$match", Value: bson.D{{Key: "customer_id", Value: customerID}}}},
+		bson.D{{Key: "$lookup", Value: bson.D{
+			{Key: "from", Value: "users"},
+			{Key: "localField", Value: "customer_id"},
+			{Key: "foreignField", Value: "_id"},
+			{Key: "as", Value: "customer"},
+		}}},
+		bson.D{{Key: "$unwind", Value: "$customer"}},
+	}
+
+	cursor, err := s.db.Aggregate(ctx, pipeline)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := cursor.All(ctx, &orders); err != nil {
+		return nil, err
+	}
+
+	if len(orders) == 0 {
+		return nil, errors.New("no orders found for the customer")
+	}
+
 	return orders, nil
 }

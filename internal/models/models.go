@@ -88,4 +88,22 @@ type (
 		Page     int `form:"page" json:"page" binding:"required"`   // Query: ?page=1
 		PageSize int `form:"limit" json:"limit" binding:"required"` // Query: ?limit=10
 	}
+
+	OrderAggregate struct {
+		ID struct {
+			Year  int `json:"year"`
+			Month int `json:"month"`
+		} `json:"_id"`
+		TotalAmount float64 `json:"totalAmount"`
+		OrderCount  int     `json:"orderCount"`
+	}
+
+	AggregatedOrdersResponse struct {
+		Data []OrderAggregate `json:"data"`
+	}
+
+	ProductSales struct {
+		ProductID primitive.ObjectID `bson:"_id" json:"productId"`
+		TotalSold int                `bson:"totalSold" json:"totalSold"`
+	}
 )

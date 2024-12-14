@@ -59,7 +59,8 @@ func Run(handler *handler.Handler, logger *slog.Logger, config *config.Config) e
 		productRoutes.GET(":id", handler.ProductHandler.GetProduct)
 		productRoutes.PUT(":id", handler.ProductHandler.UpdateProduct)
 		productRoutes.DELETE(":id", handler.ProductHandler.DeleteProduct)
-		
+		productRoutes.GET("/top-selling", handler.ProductHandler.TopSellingProductsHandler)
+
 		searchProductRoutes := productRoutes.Group("/search")
 		{
 			searchProductRoutes.GET("", handler.ProductHandler.SearchProductsByName)
@@ -75,6 +76,9 @@ func Run(handler *handler.Handler, logger *slog.Logger, config *config.Config) e
 		orderRoutes.GET(":id", handler.OrderHandler.GetOrder)
 		orderRoutes.PUT(":id", handler.OrderHandler.UpdateOrder)
 		orderRoutes.DELETE(":id", handler.OrderHandler.DeleteOrder)
+		orderRoutes.GET("/range", handler.OrderHandler.ListOrdersByDateRange)
+		orderRoutes.GET("/aggregates", handler.OrderHandler.ListOrdersWithAggregatesHandler)
+		orderRoutes.GET("/customer/:customer_id", handler.OrderHandler.ListOrdersByCustomerHandler)
 	}
 
 	return router.Run(config.Server.Port)

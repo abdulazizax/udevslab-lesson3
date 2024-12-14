@@ -36,3 +36,13 @@
 {"time":"2024-12-14T15:46:18.157713017+05:00","level":"INFO","msg":"successfully fetched product","productID":"675d436124f62af6b6abf2cb"}
 {"time":"2024-12-14T15:46:18.157730289+05:00","level":"INFO","msg":"starting order creation","ProductID":"675d436124f62af6b6abf2cb"}
 {"time":"2024-12-14T15:46:18.15796658+05:00","level":"INFO","msg":"order creation successful","orderID":"675d61fa7a40a1339c26e0c1"}
+{"time":"2024-12-14T18:11:24.985793215+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:11:24.987219894+05:00","level":"INFO","msg":"successfully fetched orders with aggregates","orderCount":0}
+{"time":"2024-12-14T18:13:17.499940453+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:13:17.501144093+05:00","level":"INFO","msg":"successfully fetched orders with aggregates","orderCount":0}
+{"time":"2024-12-14T18:16:51.598026167+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:16:51.599218466+05:00","level":"INFO","msg":"successfully fetched orders with aggregates","orderCount":10}
+{"time":"2024-12-14T18:19:27.760307934+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:19:27.768335384+05:00","level":"ERROR","msg":"failed to aggregate orders","error":"(Location40520) Invalid $project :: caused by :: Unrecognized argument to $dateToParts: datetime"}
+{"time":"2024-12-14T18:20:04.967192431+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:20:04.968427617+05:00","level":"INFO","msg":"successfully fetched orders with aggregates","orderCount":10}

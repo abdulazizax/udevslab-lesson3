@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -289,4 +290,30 @@ func (s *ProductHandler) SearchProductsByPriceRange(c *gin.Context) {
 
 	// Return the products in JSON response
 	c.JSON(http.StatusOK, products)
+}
+
+// Get list of top selling products
+// @Summary Get the top selling products
+// @Description Get a list of the top selling products
+// @Tags Products
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} []models.ProductSales "Top selling products"
+// @Failure 404 {object} models.Error "No products found"
+// @Failure 500 {object} models.Error "Internal server error"
+// @Router /products/top-selling [get]
+func (h *ProductHandler) TopSellingProductsHandler(c *gin.Context) {
+	// Get top selling products
+	topProducts, err := h.productService.TopSellingProducts(c)
+	if err != nil {
+		if err.Error() == "no products found" {
+			c.JSON(http.StatusNotFound, models.Error{Message: "No products found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, models.Error{Message: fmt.Sprintf("Internal server error: %v", err)})
+		}
+		return
+	}
+
+	// Return top selling products
+	c.JSON(http.StatusOK, topProducts)
 }

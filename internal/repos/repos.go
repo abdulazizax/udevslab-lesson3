@@ -14,6 +14,8 @@ type OrderRepo interface {
 	DeleteOrder(ctx context.Context, orderID string) error
 	ListOrders(ctx context.Context, pagination *models.Pagination) ([]models.Order, error)
 	ListOrdersByDateRange(ctx context.Context, order int8, pagination *models.Pagination, startDate, endDate time.Time) ([]models.Order, error)
+	ListOrdersWithAggregates(ctx context.Context, startDate, endDate time.Time, pagination *models.Pagination, order int8) ([]models.OrderAggregate, error)
+	ListOrdersByCustomer(ctx context.Context, customerID string) ([]models.Order, error)
 }
 
 type ProductRepo interface {
@@ -25,4 +27,5 @@ type ProductRepo interface {
 	SearchProductsByName(ctx context.Context, name string, pagination *models.Pagination) ([]models.Product, error)
 	ExactSearchProductsByPrice(ctx context.Context, price float64, pagination *models.Pagination) ([]models.Product, error)
 	SearchProductsByPriceRange(ctx context.Context, order int8, minPrice, maxPrice float64, pagination *models.Pagination) ([]models.Product, error)
+	TopSellingProducts(ctx context.Context) ([]models.ProductSales, error)
 }
