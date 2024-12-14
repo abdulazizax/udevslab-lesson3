@@ -120,7 +120,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Orders"
                 ],
                 "summary": "List orders within a specific date range",
                 "parameters": [

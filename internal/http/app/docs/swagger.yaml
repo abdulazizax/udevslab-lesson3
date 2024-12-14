@@ -312,7 +312,7 @@ paths:
             $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
       summary: List orders within a specific date range
       tags:
-      - orders
+      - Orders
   /products:
     get:
       description: Retrieve a list of all products in the database
