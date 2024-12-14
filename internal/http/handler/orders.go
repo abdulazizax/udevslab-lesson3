@@ -194,7 +194,7 @@ func (s *OrderHandler) DeleteOrder(c *gin.Context) {
 // ListOrders godoc
 // @Summary List orders within a specific date range
 // @Description Retrieve a paginated list of orders filtered by a specific date range and sorted by the creation date in ascending or descending order.
-// @Tags orders
+// @Tags Orders
 // @Produce json
 // @Param order query int true "Sort order (-1: descending, 1: ascending)" default(1)
 // @Param page query int false "Page number (1-based index)" default(1)
