@@ -54,5 +54,5 @@ func (s *OrderService) ListOrders(ctx context.Context, pagination *models.Pagina
 }
 
 func (s *OrderService) ListOrdersByDateRange(ctx context.Context, order int8, pagination *models.Pagination, startDate, endDate time.Time) ([]models.Order, error) {
-	return s.ListOrdersByDateRange(ctx, order, pagination, startDate, endDate)
+	return s.orderRepo.ListOrdersByDateRange(ctx, order, pagination, startDate, endDate)
 }
