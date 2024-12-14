@@ -153,12 +153,12 @@ func (p *ProductStorage) DeleteProduct(ctx context.Context, productID string) er
 
 // ListProducts fetches a paginated list of products from the database
 func (p *ProductStorage) ListProducts(ctx context.Context, pagination *models.Pagination) ([]models.Product, error) {
-	p.logger.Info("fetching list of products", "page", pagination.Page, "pageSize", pagination.Page)
+	p.logger.Info("fetching list of products", "page", pagination.Page, "pageSize", pagination.PageSize)
 
-	// Hisoblash: nechta yozuvni o'tkazib yuborish kerak
+	// Calculate: how many records to skip
 	skip := (pagination.Page - 1) * pagination.PageSize
 
-	// MongoDB query uchun options
+	// Options for MongoDB query
 	findOptions := options.Find().
 		SetSkip(int64(skip)).
 		SetLimit(int64(pagination.PageSize))
@@ -169,13 +169,27 @@ func (p *ProductStorage) ListProducts(ctx context.Context, pagination *models.Pa
 		p.logger.Error("failed to fetch products from database", "error", err)
 		return nil, fmt.Errorf("failed to fetch products: %w", err)
 	}
-	defer cursor.Close(ctx)
+	defer func() {
+		if cerr := cursor.Close(ctx); cerr != nil {
+			p.logger.Error("failed to close cursor", "error", cerr)
+		}
+	}()
 
-	// Ma'lumotlarni massivga tushirish
+	// Load data into array
 	var products []models.Product
-	if err := cursor.All(ctx, &products); err != nil {
-		p.logger.Error("failed to decode products", "error", err)
-		return nil, fmt.Errorf("failed to decode products: %w", err)
+	for cursor.Next(ctx) {
+		var product models.Product
+		if err := cursor.Decode(&product); err != nil {
+			p.logger.Error("failed to decode product", "error", err)
+			return nil, fmt.Errorf("failed to decode product: %w", err)
+		}
+		products = append(products, product)
+	}
+
+	// Check for iteration error
+	if err := cursor.Err(); err != nil {
+		p.logger.Error("cursor iteration error", "error", err)
+		return nil, fmt.Errorf("cursor iteration error: %w", err)
 	}
 
 	p.logger.Info("successfully fetched products", "productCount", len(products))
@@ -272,37 +286,4 @@ func (s *ProductStorage) SearchProductsByPriceRange(ctx context.Context, order i
 	}
 
 	return products, nil
-}
-
-// TopSellingProducts - Get list of top selling products
-func (s *ProductStorage) TopSellingProducts(ctx context.Context) ([]models.ProductSales, error) {
-	var topProducts []models.ProductSales
-
-	// Aggregation: Count orders by productId
-	pipeline := mongo.Pipeline{
-		bson.D{{Key: "$group", Value: bson.D{
-			{Key: "_id", Value: "$productId"},                                    // Group by productId
-			{Key: "totalSold", Value: bson.D{{Key: "$sum", Value: "$quantity"}}}, // Sum quantity sold
-		}}},
-		bson.D{{Key: "$sort", Value: bson.D{
-			{Key: "totalSold", Value: -1}, // Sort by most sold products first
-		}}},
-		bson.D{{Key: "$limit", Value: 10}}, // Get only top 10 most sold products
-	}
-
-	cursor, err := s.db.Aggregate(ctx, pipeline)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx) // Close the cursor once done
-
-	if err := cursor.All(ctx, &topProducts); err != nil {
-		return nil, err
-	}
-
-	if len(topProducts) == 0 {
-		return nil, errors.New("no top selling products found")
-	}
-
-	return topProducts, nil
 }

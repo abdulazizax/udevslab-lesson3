@@ -51,7 +51,3 @@ func (s *ProductService) ExactSearchProductsByPrice(ctx context.Context, price f
 func (s *ProductService) SearchProductsByPriceRange(ctx context.Context, order int8, minPrice, maxPrice float64, pagination *models.Pagination) ([]models.Product, error) {
 	return s.productRepo.SearchProductsByPriceRange(ctx, order, minPrice, maxPrice, pagination)
 }
-
-func (s *ProductService) TopSellingProducts(ctx context.Context) ([]models.ProductSales, error) {
-	return s.productRepo.TopSellingProducts(ctx)
-}

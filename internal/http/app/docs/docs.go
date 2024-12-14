@@ -31,18 +31,23 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "orders"
+                    "Orders"
                 ],
                 "summary": "List all orders",
                 "parameters": [
                     {
-                        "description": "Page information",
-                        "name": "pagination",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Pagination"
-                        }
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -108,103 +113,59 @@ const docTemplate = `{
                 }
             }
         },
-        "/orders/aggregates": {
+        "/orders/range": {
             "get": {
-                "description": "Fetch aggregated orders based on the date range, pagination, and sorting (by date).",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Retrieve a paginated list of orders filtered by a specific date range and sorted by the creation date in ascending or descending order.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Orders"
+                    "orders"
                 ],
-                "summary": "Get aggregated orders by date range (year and month)",
+                "summary": "List orders within a specific date range",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Start Date (YYYY-MM-DD)",
-                        "name": "start_date",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "End Date (YYYY-MM-DD)",
-                        "name": "end_date",
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Sort order (-1: descending, 1: ascending)",
+                        "name": "order",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "integer",
                         "default": 1,
-                        "description": "Page number",
+                        "description": "Page number (1-based index)",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
                         "default": 10,
-                        "description": "Page size",
+                        "description": "Number of orders per page",
                         "name": "page_size",
                         "in": "query"
                     },
                     {
-                        "type": "integer",
-                        "default": 1,
-                        "description": "Order (1 for ascending, -1 for descending)",
-                        "name": "order",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Aggregated Orders",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.AggregatedOrdersResponse"
-                        }
+                        "type": "string",
+                        "default": "2000-01-01",
+                        "description": "Start date in format (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query",
+                        "required": true
                     },
-                    "400": {
-                        "description": "Invalid parameters",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Server error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/customer/{customer_id}": {
-            "get": {
-                "description": "Get a list of orders for a specific customer by customer ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Get orders by customer",
-                "parameters": [
                     {
                         "type": "string",
-                        "description": "Customer ID",
-                        "name": "customer_id",
-                        "in": "path",
+                        "default": "2026-01-01",
+                        "description": "End date in format (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query",
                         "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "List of orders",
+                        "description": "Paginated list of orders",
                         "schema": {
                             "type": "array",
                             "items": {
@@ -213,79 +174,9 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid customer ID",
+                        "description": "Bad request (invalid parameters)",
                         "schema": {
                             "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
-                        }
-                    },
-                    "404": {
-                        "description": "No orders found",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/orders/range": {
-            "get": {
-                "description": "Retrieve a list of all orders within a date range in the database, sorted by created_at in ascending order",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "orders"
-                ],
-                "summary": "List all orders within a specific date range, with pagination, and sorted by date (ascending)",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Order (-1: decreasing, 1: increasing)",
-                        "name": "order",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "description": "Page information",
-                        "name": "pagination",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Pagination"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Start date (YYYY-MM-DD)",
-                        "name": "start_date",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "End date (YYYY-MM-DD)",
-                        "name": "end_date",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of orders",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "array",
-                                "items": {
-                                    "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order"
-                                }
-                            }
                         }
                     },
                     "500": {
@@ -459,17 +350,17 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page number",
                         "name": "page",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Items per page",
-                        "name": "limit",
-                        "in": "query",
-                        "required": true
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -549,17 +440,17 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Page number",
                         "name": "page",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Items per page",
-                        "name": "limit",
-                        "in": "query",
-                        "required": true
+                        "default": 10,
+                        "description": "Page size",
+                        "name": "page_size",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -652,6 +543,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
+                        "default": 1,
                         "description": "Order (-1: decreasing, 1: increasing)",
                         "name": "order",
                         "in": "query",
@@ -698,44 +590,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid request parameters",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/products/top-selling": {
-            "get": {
-                "description": "Get a list of the top selling products",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Products"
-                ],
-                "summary": "Get the top selling products",
-                "responses": {
-                    "200": {
-                        "description": "Top selling products",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.ProductSales"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "No products found",
                         "schema": {
                             "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error"
                         }
@@ -892,17 +746,6 @@ const docTemplate = `{
             "type": "object",
             "additionalProperties": {}
         },
-        "github_com_abdulazizax_udevslab-lesson3_internal_models.AggregatedOrdersResponse": {
-            "type": "object",
-            "properties": {
-                "data": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.OrderAggregate"
-                    }
-                }
-            }
-        },
         "github_com_abdulazizax_udevslab-lesson3_internal_models.Error": {
             "type": "object",
             "properties": {
@@ -940,28 +783,6 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_abdulazizax_udevslab-lesson3_internal_models.OrderAggregate": {
-            "type": "object",
-            "properties": {
-                "_id": {
-                    "type": "object",
-                    "properties": {
-                        "month": {
-                            "type": "integer"
-                        },
-                        "year": {
-                            "type": "integer"
-                        }
-                    }
-                },
-                "orderCount": {
-                    "type": "integer"
-                },
-                "totalAmount": {
-                    "type": "number"
-                }
-            }
-        },
         "github_com_abdulazizax_udevslab-lesson3_internal_models.OrderCreate": {
             "type": "object",
             "properties": {
@@ -993,23 +814,6 @@ const docTemplate = `{
                 },
                 "userId": {
                     "type": "string"
-                }
-            }
-        },
-        "github_com_abdulazizax_udevslab-lesson3_internal_models.Pagination": {
-            "type": "object",
-            "required": [
-                "limit",
-                "page"
-            ],
-            "properties": {
-                "limit": {
-                    "description": "Query: ?limit=10",
-                    "type": "integer"
-                },
-                "page": {
-                    "description": "Query: ?page=1",
-                    "type": "integer"
                 }
             }
         },
@@ -1052,17 +856,6 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "stock": {
-                    "type": "integer"
-                }
-            }
-        },
-        "github_com_abdulazizax_udevslab-lesson3_internal_models.ProductSales": {
-            "type": "object",
-            "properties": {
-                "productId": {
-                    "type": "string"
-                },
-                "totalSold": {
                     "type": "integer"
                 }
             }

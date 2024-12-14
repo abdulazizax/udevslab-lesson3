@@ -58,20 +58,36 @@ func (s *OrderHandler) CreateOrder(c *gin.Context) {
 // ListOrders godoc
 // @Summary List all orders
 // @Description Retrieve a list of all orders in the database with pagination
-// @Tags orders
+// @Tags Orders
 // @Produce json
-// @Param pagination body models.Pagination true "Page information"
+// @Param page query int false "Page number" default(1)
+// @Param page_size query int false "Page size" default(10)
 // @Success 200 {array} models.Order "List of orders"
 // @Failure 500 {object} models.Error "Internal server error"
 // @Router /orders [get]
 func (o *OrderHandler) ListOrders(c *gin.Context) {
-	var pagination models.Pagination
-	if err := c.ShouldBindJSON(&pagination); err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid request body"})
+	page := c.DefaultQuery("page", "1")
+	pageSize := c.DefaultQuery("page_size", "10")
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil || pageInt <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number."})
 		return
 	}
 
-	orders, err := o.orderService.ListOrders(c, &pagination)
+	pageSizeInt, err := strconv.Atoi(pageSize)
+	if err != nil || pageSizeInt <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page_size."})
+		return
+	}
+
+	// Create pagination parameters
+	var pagination = &models.Pagination{
+		Page:     pageInt,
+		PageSize: pageSizeInt,
+	}
+
+	orders, err := o.orderService.ListOrders(c, pagination)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{Message: err.Error()})
 		return
@@ -176,28 +192,44 @@ func (s *OrderHandler) DeleteOrder(c *gin.Context) {
 }
 
 // ListOrders godoc
-// @Summary List all orders within a specific date range, with pagination, and sorted by date (ascending)
-// @Description Retrieve a list of all orders within a date range in the database, sorted by created_at in ascending order
+// @Summary List orders within a specific date range
+// @Description Retrieve a paginated list of orders filtered by a specific date range and sorted by the creation date in ascending or descending order.
 // @Tags orders
 // @Produce json
-// @Param order query int8 true "Order (-1: decreasing, 1: increasing)"
-// @Param pagination body models.Pagination true "Page information"
-// @Param start_date query string true "Start date (YYYY-MM-DD)"
-// @Param end_date query string true "End date (YYYY-MM-DD)"
-// @Success 200 {array} []models.Order "List of orders"
+// @Param order query int true "Sort order (-1: descending, 1: ascending)" default(1)
+// @Param page query int false "Page number (1-based index)" default(1)
+// @Param page_size query int false "Number of orders per page" default(10)
+// @Param start_date query string true "Start date in format (YYYY-MM-DD)" default(2000-01-01)
+// @Param end_date query string true "End date in format (YYYY-MM-DD)" default(2026-01-01)
+// @Success 200 {array} models.Order "Paginated list of orders"
+// @Failure 400 {object} models.Error "Bad request (invalid parameters)"
 // @Failure 500 {object} models.Error "Internal server error"
 // @Router /orders/range [get]
 func (o *OrderHandler) ListOrdersByDateRange(c *gin.Context) {
-	var pagination models.Pagination
-	if err := c.ShouldBindJSON(&pagination); err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid request body"})
-		return
-	}
-
 	// Get start and end dates from query parameters
 	orderStr := c.DefaultQuery("order", "1") // Default is 1 if not provided
 	startDateStr := c.DefaultQuery("start_date", "")
 	endDateStr := c.DefaultQuery("end_date", "")
+	page := c.DefaultQuery("page", "1")
+	pageSize := c.DefaultQuery("page_size", "10")
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil || pageInt <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number."})
+		return
+	}
+
+	pageSizeInt, err := strconv.Atoi(pageSize)
+	if err != nil || pageSizeInt <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page_size."})
+		return
+	}
+
+	// Create pagination parameters
+	var pagination = &models.Pagination{
+		Page:     pageInt,
+		PageSize: pageSizeInt,
+	}
 
 	order, err := strconv.ParseInt(orderStr, 10, 8)
 	if err != nil || order < -1 || order > 1 {
@@ -218,7 +250,7 @@ func (o *OrderHandler) ListOrdersByDateRange(c *gin.Context) {
 	}
 
 	// Fetch orders with pagination, date range filter, and sorting by date
-	orders, err := o.orderService.ListOrdersByDateRange(c, int8(order), &pagination, startDate, endDate)
+	orders, err := o.orderService.ListOrdersByDateRange(c, int8(order), pagination, startDate, endDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{Message: err.Error()})
 		return
@@ -226,114 +258,5 @@ func (o *OrderHandler) ListOrdersByDateRange(c *gin.Context) {
 
 	fmt.Println(order)
 
-	c.JSON(http.StatusOK, orders)
-}
-
-// ListOrdersWithAggregatesHandler - Handler for aggregating orders by date
-// @Summary Get aggregated orders by date range (year and month)
-// @Description Fetch aggregated orders based on the date range, pagination, and sorting (by date).
-// @Tags Orders
-// @Accept  json
-// @Produce  json
-// @Param start_date query string true "Start Date (YYYY-MM-DD)"
-// @Param end_date query string true "End Date (YYYY-MM-DD)"
-// @Param page query int false "Page number" default(1)
-// @Param page_size query int false "Page size" default(10)
-// @Param order query int false "Order (1 for ascending, -1 for descending)" default(1)
-// @Success 200 {object} models.AggregatedOrdersResponse "Aggregated Orders"
-// @Failure 400 {object} models.Error "Invalid parameters"
-// @Failure 500 {object} models.Error "Server error"
-// @Router /orders/aggregates [get]
-func (h *OrderHandler) ListOrdersWithAggregatesHandler(c *gin.Context) {
-	// Get parameters
-	startDateStr := c.DefaultQuery("start_date", "")
-	endDateStr := c.DefaultQuery("end_date", "")
-	page := c.DefaultQuery("page", "1")
-	pageSize := c.DefaultQuery("page_size", "10")
-	order := c.DefaultQuery("order", "1")
-
-	// Validate parameters and convert to time
-	startDate, err := time.Parse("2006-01-02", startDateStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid start_date format. Use YYYY-MM-DD."})
-		return
-	}
-
-	endDate, err := time.Parse("2006-01-02", endDateStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid end_date format. Use YYYY-MM-DD."})
-		return
-	}
-
-	pageInt, err := strconv.Atoi(page)
-	if err != nil || pageInt <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number."})
-		return
-	}
-
-	pageSizeInt, err := strconv.Atoi(pageSize)
-	if err != nil || pageSizeInt <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page_size."})
-		return
-	}
-
-	orderInt, err := strconv.ParseInt(order, 10, 8)
-	if err != nil || (orderInt != 1 && orderInt != -1) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid order value. Use 1 for ascending or -1 for descending."})
-		return
-	}
-
-	// Create pagination parameters
-	pagination := &models.Pagination{
-		Page:     pageInt,
-		PageSize: pageSizeInt,
-	}
-
-	// Call aggregation
-	aggregates, err := h.orderService.ListOrdersWithAggregates(c, startDate, endDate, pagination, int8(orderInt))
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to fetch aggregated orders: %v", err)})
-		return
-	}
-
-	// @Success 200 {object} AggregatedOrdersResponse "Aggregated Orders"
-	c.JSON(http.StatusOK, models.AggregatedOrdersResponse{
-		Data: aggregates,
-	})
-}
-
-// ListOrdersByCustomerHandler - Get orders by customer
-// @Summary Get orders by customer
-// @Description Get a list of orders for a specific customer by customer ID
-// @Tags Orders
-// @Accept  json
-// @Produce  json
-// @Param customer_id path string true "Customer ID"
-// @Success 200 {object} []models.Order "List of orders"
-// @Failure 400 {object} models.Error "Invalid customer ID"
-// @Failure 404 {object} models.Error "No orders found"
-// @Failure 500 {object} models.Error "Internal server error"
-// @Router /orders/customer/{customer_id} [get]
-func (h *OrderHandler) ListOrdersByCustomerHandler(c *gin.Context) {
-	customerID := c.Param("customer_id")
-
-	// Validate customer_id
-	if customerID == "" {
-		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid customer_id"})
-		return
-	}
-
-	// Get orders by customer
-	orders, err := h.orderService.ListOrdersByCustomer(c, customerID)
-	if err != nil {
-		if err.Error() == "no orders found for the customer" {
-			c.JSON(http.StatusNotFound, models.Error{Message: "No orders found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, models.Error{Message: fmt.Sprintf("Internal server error: %v", err)})
-		}
-		return
-	}
-
-	// Return orders
 	c.JSON(http.StatusOK, orders)
 }

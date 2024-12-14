@@ -46,3 +46,31 @@
 {"time":"2024-12-14T18:19:27.768335384+05:00","level":"ERROR","msg":"failed to aggregate orders","error":"(Location40520) Invalid $project :: caused by :: Unrecognized argument to $dateToParts: datetime"}
 {"time":"2024-12-14T18:20:04.967192431+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
 {"time":"2024-12-14T18:20:04.968427617+05:00","level":"INFO","msg":"successfully fetched orders with aggregates","orderCount":10}
+{"time":"2024-12-14T18:22:04.638034722+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:22:04.638991985+05:00","level":"ERROR","msg":"failed to aggregate orders","error":"(Location40520) Invalid $project :: caused by :: Unrecognized argument to $dateToParts: datetime"}
+{"time":"2024-12-14T18:22:22.486544107+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:22:22.487876017+05:00","level":"ERROR","msg":"failed to aggregate orders","error":"(Location40520) Invalid $project :: caused by :: Unrecognized argument to $dateToParts: datetime"}
+{"time":"2024-12-14T18:23:11.352348133+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:23:11.353685283+05:00","level":"INFO","msg":"successfully fetched orders with aggregates","orderCount":10}
+{"time":"2024-12-14T18:26:32.215319499+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:26:32.216431313+05:00","level":"ERROR","msg":"failed to aggregate orders","error":"(Location40520) Invalid $project :: caused by :: Unrecognized argument to $dateToParts: datetime"}
+{"time":"2024-12-14T18:26:56.609797227+05:00","level":"INFO","msg":"fetching orders with aggregates for date range, pagination, and sorting by date"}
+{"time":"2024-12-14T18:26:56.610928638+05:00","level":"INFO","msg":"successfully fetched orders with aggregates","orderCount":10}
+{"time":"2024-12-14T18:33:36.165061427+05:00","level":"INFO","msg":"Fetching orders for user","userID":"5f1f7c9b6c0f5c001fddf8ff"}
+{"time":"2024-12-14T18:33:36.16645556+05:00","level":"INFO","msg":"Found orders","count":0}
+{"time":"2024-12-14T18:33:36.166494341+05:00","level":"WARN","msg":"No orders found for the user","userID":"5f1f7c9b6c0f5c001fddf8ff"}
+{"time":"2024-12-14T18:40:10.904893827+05:00","level":"INFO","msg":"fetching product by ID","productID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T18:40:10.905652107+05:00","level":"INFO","msg":"successfully fetched product","productID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T18:40:10.905690425+05:00","level":"INFO","msg":"starting order creation","ProductID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T18:40:10.90607777+05:00","level":"INFO","msg":"order creation successful","orderID":"675d8aba7a0c3cd6e5fd379d"}
+{"time":"2024-12-14T19:01:19.56803548+05:00","level":"INFO","msg":"fetching product by ID","productID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T19:01:19.569049408+05:00","level":"INFO","msg":"successfully fetched product","productID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T19:01:19.569134383+05:00","level":"INFO","msg":"starting order creation","ProductID":"675d42b76ef6ac6255ca7499"}
+{"time":"2024-12-14T19:01:19.569669685+05:00","level":"INFO","msg":"order creation successful","orderID":"675d8faf5bb880b8721a15a3"}
+{"time":"2024-12-14T19:34:48.95701963+05:00","level":"INFO","msg":"fetching all orders with pagination"}
+{"time":"2024-12-14T19:34:48.957939985+05:00","level":"INFO","msg":"successfully fetched orders with pagination","orderCount":10}
+{"time":"2024-12-14T19:48:23.056505391+05:00","level":"INFO","msg":"fetching list of products","page":1,"pageSize":10}
+{"time":"2024-12-14T19:48:23.057661683+05:00","level":"INFO","msg":"successfully fetched products","productCount":3}
+{"time":"2024-12-14T19:50:42.517330105+05:00","level":"INFO","msg":"successfully fetched search results","productCount":1}
+{"time":"2024-12-14T20:38:41.501708339+05:00","level":"INFO","msg":"fetching list of products","page":1,"pageSize":10}
+{"time":"2024-12-14T20:38:41.502829629+05:00","level":"INFO","msg":"successfully fetched products","productCount":3}

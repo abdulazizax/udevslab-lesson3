@@ -1,6 +1,10 @@
 package models
 
-import "go.mongodb.org/mongo-driver/bson/primitive"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 type (
 
@@ -89,21 +93,27 @@ type (
 		PageSize int `form:"limit" json:"limit" binding:"required"` // Query: ?limit=10
 	}
 
+	TopProduct struct {
+		ProductID    string  `json:"product_id" bson:"_id"`
+		Name         string  `json:"name" bson:"name"`
+		TotalSold    int     `json:"total_sold" bson:"total_sold"`
+		TotalRevenue float64 `json:"total_revenue" bson:"total_revenue"`
+	}
+
+	OrderWithUser struct {
+		OrderID   string    `json:"order_id" bson:"_id"`
+		UserID    string    `json:"user_id" bson:"user_id"`
+		UserName  string    `json:"user_name" bson:"user_name"`
+		ProductID string    `json:"product_id" bson:"product_id"`
+		Quantity  int       `json:"quantity" bson:"quantity"`
+		Status    string    `json:"status" bson:"status"`
+		Total     float64   `json:"total" bson:"total"`
+		CreatedAt time.Time `json:"created_at" bson:"created_at"`
+	}
+
 	OrderAggregate struct {
-		ID struct {
-			Year  int `json:"year"`
-			Month int `json:"month"`
-		} `json:"_id"`
-		TotalAmount float64 `json:"totalAmount"`
-		OrderCount  int     `json:"orderCount"`
-	}
-
-	AggregatedOrdersResponse struct {
-		Data []OrderAggregate `json:"data"`
-	}
-
-	ProductSales struct {
-		ProductID primitive.ObjectID `bson:"_id" json:"productId"`
-		TotalSold int                `bson:"totalSold" json:"totalSold"`
+		Date         string  `json:"date" bson:"_id"`
+		TotalOrders  int     `json:"total_orders" bson:"total_orders"`
+		TotalRevenue float64 `json:"total_revenue" bson:"total_revenue"`
 	}
 )

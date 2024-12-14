@@ -3,13 +3,6 @@ definitions:
   gin.H:
     additionalProperties: {}
     type: object
-  github_com_abdulazizax_udevslab-lesson3_internal_models.AggregatedOrdersResponse:
-    properties:
-      data:
-        items:
-          $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.OrderAggregate'
-        type: array
-    type: object
   github_com_abdulazizax_udevslab-lesson3_internal_models.Error:
     properties:
       message:
@@ -34,20 +27,6 @@ definitions:
       userId:
         type: string
     type: object
-  github_com_abdulazizax_udevslab-lesson3_internal_models.OrderAggregate:
-    properties:
-      _id:
-        properties:
-          month:
-            type: integer
-          year:
-            type: integer
-        type: object
-      orderCount:
-        type: integer
-      totalAmount:
-        type: number
-    type: object
   github_com_abdulazizax_udevslab-lesson3_internal_models.OrderCreate:
     properties:
       productId:
@@ -69,18 +48,6 @@ definitions:
         type: string
       userId:
         type: string
-    type: object
-  github_com_abdulazizax_udevslab-lesson3_internal_models.Pagination:
-    properties:
-      limit:
-        description: 'Query: ?limit=10'
-        type: integer
-      page:
-        description: 'Query: ?page=1'
-        type: integer
-    required:
-    - limit
-    - page
     type: object
   github_com_abdulazizax_udevslab-lesson3_internal_models.Product:
     properties:
@@ -108,13 +75,6 @@ definitions:
       price:
         type: number
       stock:
-        type: integer
-    type: object
-  github_com_abdulazizax_udevslab-lesson3_internal_models.ProductSales:
-    properties:
-      productId:
-        type: string
-      totalSold:
         type: integer
     type: object
   github_com_abdulazizax_udevslab-lesson3_internal_models.ProductUpdate:
@@ -146,12 +106,16 @@ paths:
     get:
       description: Retrieve a list of all orders in the database with pagination
       parameters:
-      - description: Page information
-        in: body
-        name: pagination
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Pagination'
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
       produces:
       - application/json
       responses:
@@ -167,7 +131,7 @@ paths:
             $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
       summary: List all orders
       tags:
-      - orders
+      - Orders
     post:
       consumes:
       - application/json
@@ -296,23 +260,63 @@ paths:
       summary: Update an order
       tags:
       - Orders
-  /orders/aggregates:
+  /orders/range:
     get:
-      consumes:
-      - application/json
-      description: Fetch aggregated orders based on the date range, pagination, and
-        sorting (by date).
+      description: Retrieve a paginated list of orders filtered by a specific date
+        range and sorted by the creation date in ascending or descending order.
       parameters:
-      - description: Start Date (YYYY-MM-DD)
+      - default: 1
+        description: 'Sort order (-1: descending, 1: ascending)'
+        in: query
+        name: order
+        required: true
+        type: integer
+      - default: 1
+        description: Page number (1-based index)
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of orders per page
+        in: query
+        name: page_size
+        type: integer
+      - default: "2000-01-01"
+        description: Start date in format (YYYY-MM-DD)
         in: query
         name: start_date
         required: true
         type: string
-      - description: End Date (YYYY-MM-DD)
+      - default: "2026-01-01"
+        description: End date in format (YYYY-MM-DD)
         in: query
         name: end_date
         required: true
         type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Paginated list of orders
+          schema:
+            items:
+              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order'
+            type: array
+        "400":
+          description: Bad request (invalid parameters)
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
+      summary: List orders within a specific date range
+      tags:
+      - orders
+  /products:
+    get:
+      description: Retrieve a list of all products in the database
+      parameters:
       - default: 1
         description: Page number
         in: query
@@ -322,123 +326,6 @@ paths:
         description: Page size
         in: query
         name: page_size
-        type: integer
-      - default: 1
-        description: Order (1 for ascending, -1 for descending)
-        in: query
-        name: order
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Aggregated Orders
-          schema:
-            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.AggregatedOrdersResponse'
-        "400":
-          description: Invalid parameters
-          schema:
-            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
-        "500":
-          description: Server error
-          schema:
-            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
-      summary: Get aggregated orders by date range (year and month)
-      tags:
-      - Orders
-  /orders/customer/{customer_id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a list of orders for a specific customer by customer ID
-      parameters:
-      - description: Customer ID
-        in: path
-        name: customer_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of orders
-          schema:
-            items:
-              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order'
-            type: array
-        "400":
-          description: Invalid customer ID
-          schema:
-            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
-        "404":
-          description: No orders found
-          schema:
-            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
-      summary: Get orders by customer
-      tags:
-      - Orders
-  /orders/range:
-    get:
-      description: Retrieve a list of all orders within a date range in the database,
-        sorted by created_at in ascending order
-      parameters:
-      - description: 'Order (-1: decreasing, 1: increasing)'
-        in: query
-        name: order
-        required: true
-        type: integer
-      - description: Page information
-        in: body
-        name: pagination
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Pagination'
-      - description: Start date (YYYY-MM-DD)
-        in: query
-        name: start_date
-        required: true
-        type: string
-      - description: End date (YYYY-MM-DD)
-        in: query
-        name: end_date
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: List of orders
-          schema:
-            items:
-              items:
-                $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Order'
-              type: array
-            type: array
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
-      summary: List all orders within a specific date range, with pagination, and
-        sorted by date (ascending)
-      tags:
-      - orders
-  /products:
-    get:
-      description: Retrieve a list of all products in the database
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        required: true
-        type: integer
-      - description: Items per page
-        in: query
-        name: limit
-        required: true
         type: integer
       produces:
       - application/json
@@ -582,15 +469,15 @@ paths:
         name: name
         required: true
         type: string
-      - description: Page number
+      - default: 1
+        description: Page number
         in: query
         name: page
-        required: true
         type: integer
-      - description: Items per page
+      - default: 10
+        description: Page size
         in: query
-        name: limit
-        required: true
+        name: page_size
         type: integer
       produces:
       - application/json
@@ -651,7 +538,8 @@ paths:
     get:
       description: Retrieve products based on a price range with pagination
       parameters:
-      - description: 'Order (-1: decreasing, 1: increasing)'
+      - default: 1
+        description: 'Order (-1: decreasing, 1: increasing)'
         in: query
         name: order
         required: true
@@ -696,31 +584,6 @@ paths:
       summary: Search products by price range
       tags:
       - products
-  /products/top-selling:
-    get:
-      consumes:
-      - application/json
-      description: Get a list of the top selling products
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Top selling products
-          schema:
-            items:
-              $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.ProductSales'
-            type: array
-        "404":
-          description: No products found
-          schema:
-            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
-        "500":
-          description: Internal server error
-          schema:
-            $ref: '#/definitions/github_com_abdulazizax_udevslab-lesson3_internal_models.Error'
-      summary: Get the top selling products
-      tags:
-      - Products
 schemes:
 - http
 - https

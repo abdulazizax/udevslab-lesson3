@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodb
+      MONGO_INITDB_ROOT_PASSWORD: pass
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - udevslab
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: udevslab-lesson3
+    depends_on:
+      - mongodb
+    ports:
+      - "8080:8080"
+    networks:
+      - udevslab
+
+networks:
+  udevslab:
+    name: udevslab
+    external: true
+
+volumes:
+  mongo-data:

@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -63,21 +62,35 @@ func (s *ProductHandler) CreateProduct(c *gin.Context) {
 // @Description Retrieve a list of all products in the database
 // @Tags products
 // @Produce json
-// @Param page query int true "Page number"
-// @Param limit query int true "Items per page"
+// @Param page query int false "Page number" default(1)
+// @Param page_size query int false "Page size" default(10)
 // @Success 200 {array} models.Product "List of products"
 // @Failure 500 {object} models.Error "Internal server error"
 // @Router /products [get]
 func (s *ProductHandler) ListProducts(c *gin.Context) {
-	var pagination models.Pagination
-	// Bind query parameters to the Pagination struct
-	if err := c.ShouldBindQuery(&pagination); err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid query parameters"})
+	page := c.DefaultQuery("page", "1")
+	pageSize := c.DefaultQuery("page_size", "10")
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil || pageInt <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number."})
 		return
 	}
 
+	pageSizeInt, err := strconv.Atoi(pageSize)
+	if err != nil || pageSizeInt <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page_size."})
+		return
+	}
+
+	// Create pagination parameters
+	var pagination = &models.Pagination{
+		Page:     pageInt,
+		PageSize: pageSizeInt,
+	}
+
 	// Call the service layer to get paginated products
-	products, err := s.productService.ListProducts(c, &pagination)
+	products, err := s.productService.ListProducts(c, pagination)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{Message: err.Error()})
 		return
@@ -167,27 +180,41 @@ func (s *ProductHandler) DeleteProduct(c *gin.Context) {
 // @Tags products
 // @Produce json
 // @Param name query string true "Search keyword"
-// @Param page query int true "Page number"
-// @Param limit query int true "Items per page"
+// @Param page query int false "Page number" default(1)
+// @Param page_size query int false "Page size" default(10)
 // @Success 200 {array} models.Product "List of products"
 // @Failure 500 {object} models.Error "Internal server error"
 // @Router /products/search [get]
 func (s *ProductHandler) SearchProductsByName(c *gin.Context) {
-	var pagination models.Pagination
 	searchQuery := c.Query("name") // Get the search keyword from query
 	if searchQuery == "" {
 		c.JSON(http.StatusBadRequest, models.Error{Message: "Search query is required"})
 		return
 	}
 
-	// Bind pagination query parameters
-	if err := c.ShouldBindQuery(&pagination); err != nil {
-		c.JSON(http.StatusBadRequest, models.Error{Message: "Invalid pagination parameters"})
+	page := c.DefaultQuery("page", "1")
+	pageSize := c.DefaultQuery("page_size", "10")
+
+	pageInt, err := strconv.Atoi(page)
+	if err != nil || pageInt <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page number."})
 		return
 	}
 
+	pageSizeInt, err := strconv.Atoi(pageSize)
+	if err != nil || pageSizeInt <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid page_size."})
+		return
+	}
+
+	// Create pagination parameters
+	var pagination = &models.Pagination{
+		Page:     pageInt,
+		PageSize: pageSizeInt,
+	}
+
 	// Call the service layer to get search results with pagination
-	products, err := s.productService.SearchProductsByName(c, searchQuery, &pagination)
+	products, err := s.productService.SearchProductsByName(c, searchQuery, pagination)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.Error{Message: err.Error()})
 		return
@@ -241,7 +268,7 @@ func (s *ProductHandler) ExactSearchProductsByPrice(c *gin.Context) {
 // @Description Retrieve products based on a price range with pagination
 // @Tags products
 // @Produce json
-// @Param order query int8 true "Order (-1: decreasing, 1: increasing)"
+// @Param order query int8 true "Order (-1: decreasing, 1: increasing)" default(1)
 // @Param min_price query float64 true "Minimum price"
 // @Param max_price query float64 true "Maximum price"
 // @Param page query int false "Page number" default(1)
@@ -290,30 +317,4 @@ func (s *ProductHandler) SearchProductsByPriceRange(c *gin.Context) {
 
 	// Return the products in JSON response
 	c.JSON(http.StatusOK, products)
-}
-
-// Get list of top selling products
-// @Summary Get the top selling products
-// @Description Get a list of the top selling products
-// @Tags Products
-// @Accept  json
-// @Produce  json
-// @Success 200 {object} []models.ProductSales "Top selling products"
-// @Failure 404 {object} models.Error "No products found"
-// @Failure 500 {object} models.Error "Internal server error"
-// @Router /products/top-selling [get]
-func (h *ProductHandler) TopSellingProductsHandler(c *gin.Context) {
-	// Get top selling products
-	topProducts, err := h.productService.TopSellingProducts(c)
-	if err != nil {
-		if err.Error() == "no products found" {
-			c.JSON(http.StatusNotFound, models.Error{Message: "No products found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, models.Error{Message: fmt.Sprintf("Internal server error: %v", err)})
-		}
-		return
-	}
-
-	// Return top selling products
-	c.JSON(http.StatusOK, topProducts)
 }

@@ -56,11 +56,3 @@ func (s *OrderService) ListOrders(ctx context.Context, pagination *models.Pagina
 func (s *OrderService) ListOrdersByDateRange(ctx context.Context, order int8, pagination *models.Pagination, startDate, endDate time.Time) ([]models.Order, error) {
 	return s.ListOrdersByDateRange(ctx, order, pagination, startDate, endDate)
 }
-
-func (s *OrderService) ListOrdersWithAggregates(ctx context.Context, startDate, endDate time.Time, pagination *models.Pagination, order int8) ([]models.OrderAggregate, error) {
-	return s.orderRepo.ListOrdersWithAggregates(ctx, startDate, endDate, pagination, order)
-}
-
-func (s *OrderService) ListOrdersByCustomer(ctx context.Context, customerID string) ([]models.Order, error) {
-	return s.orderRepo.ListOrdersByCustomer(ctx, customerID)
-}
